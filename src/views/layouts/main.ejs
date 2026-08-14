@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= typeof title !== "undefined" ? title + " | " + appName : appName %></title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+</head>
+<body class="min-h-screen bg-gray-100 text-gray-800">
+  <div class="max-w-md mx-auto min-h-screen flex flex-col">
+    <header class="py-4">
+      <h1 class="text-2xl font-semibold text-center text-blue-600"><%= appName %></h1>
+      <% if (currentUser) { %>
+      <p class="text-center text-sm text-gray-500 mt-1">Masuk sebagai <span class="font-medium"><%= currentUser.name %></span> (<%= currentUser.role %>)</p>
+      <% } %>
+    </header>
+
+    <main class="flex-1 mb-6">
+      <% if (typeof body !== "undefined") { %>
+      <%- body %>
+      <% } %>
+    </main>
+
+    <footer class="py-4 text-center text-xs text-gray-400">
+      <p>&copy; <%= new Date().getFullYear() %> <%= appName %></p>
+    </footer>
+  </div>
+</body>
+</html>

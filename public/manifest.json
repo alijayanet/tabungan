@@ -1,0 +1,41 @@
+{
+  "name": "Aplikasi Tabungan",
+  "short_name": "Tabungan",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#667eea",
+  "description": "Aplikasi tabungan masyarakat dengan dashboard Admin, Kasir, dan Anggota.",
+  "icons": [
+    {
+      "src": "/icons/app-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/app-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Beranda Admin",
+      "url": "/admin/dashboard",
+      "icons": [{ "src": "/icons/admin-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Beranda Kasir",
+      "url": "/kasir/dashboard",
+      "icons": [{ "src": "/icons/kasir-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Beranda Anggota",
+      "url": "/anggota/dashboard",
+      "icons": [{ "src": "/icons/anggota-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
+}

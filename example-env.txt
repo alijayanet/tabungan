@@ -1,0 +1,19 @@
+# ===================================================
+# KONFIGURASI APLIKASI TABUNGAN MASYARAKAT
+# Salin file ini menjadi .env lalu sesuaikan nilainya
+# ===================================================
+
+# Port Web Server
+PORT=4001
+
+# Nama Lembaga / Koperasi / RT / Instansi
+APP_NAME=Aplikasi Tabungan Masyarakat
+
+# Secret Key untuk Keamanan Session Login (Gunakan string acak panjang)
+SESSION_SECRET=tabungan_super_secret_key_random_1234567890
+
+# Akun Super Admin Awal (Otomatis dibuat saat server pertama kali berjalan)
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=admin123
+ADMIN_NAME=Super Admin
+ADMIN_PHONE=6281234567890

@@ -1,0 +1,210 @@
+<%- include("../layouts/header", { title: "Laporan Tabungan" }) %>
+
+<div class="space-y-6">
+  <!-- Top Banner & Export Actions -->
+  <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-6 text-white shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+      <span class="px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-[10px] font-extrabold uppercase tracking-wider">
+        Pembukuan & Mutasi Keuangan
+      </span>
+      <h2 class="text-xl sm:text-2xl font-black mt-1">Laporan Arus Kas Tabungan</h2>
+      <p class="text-xs text-slate-300 mt-0.5">Pantau mutasi setoran dan penarikan seluruh anggota & petugas kasir</p>
+    </div>
+
+    <div class="flex items-center space-x-2">
+      <a
+        href="/admin/reports/export?startDate=<%= query.startDate %>&endDate=<%= query.endDate %>&type=<%= query.type %>&memberId=<%= query.memberId %>&cashierId=<%= query.cashierId %>"
+        class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-2xl text-xs font-bold transition-all shadow-lg shadow-emerald-600/20 flex items-center space-x-1.5"
+      >
+        <i class="fas fa-file-excel"></i>
+        <span>Export ke Excel/CSV</span>
+      </a>
+      <button
+        onclick="window.print()"
+        class="px-3.5 py-2.5 bg-white/10 hover:bg-white/20 active:scale-95 text-white rounded-2xl text-xs font-bold transition-all border border-white/10 flex items-center space-x-1.5"
+      >
+        <i class="fas fa-print"></i>
+        <span>Cetak</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <!-- Total Setoran -->
+    <div class="bg-white rounded-3xl p-5 card-shadow border border-slate-100 flex flex-col justify-between">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Setoran (+)</span>
+        <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm font-bold">
+          <i class="fas fa-arrow-down"></i>
+        </div>
+      </div>
+      <h3 class="text-xl sm:text-2xl font-black text-emerald-600">
+        Rp <%= totalDeposit.toLocaleString("id-ID") %>
+      </h3>
+    </div>
+
+    <!-- Total Penarikan -->
+    <div class="bg-white rounded-3xl p-5 card-shadow border border-slate-100 flex flex-col justify-between">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Penarikan (-)</span>
+        <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-sm font-bold">
+          <i class="fas fa-arrow-up"></i>
+        </div>
+      </div>
+      <h3 class="text-xl sm:text-2xl font-black text-rose-600">
+        Rp <%= totalWithdraw.toLocaleString("id-ID") %>
+      </h3>
+    </div>
+
+    <!-- Net Arus Kas -->
+    <div class="bg-white rounded-3xl p-5 card-shadow border border-slate-100 flex flex-col justify-between">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Net Arus Kas Masuk</span>
+        <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm font-bold">
+          <i class="fas fa-balance-scale"></i>
+        </div>
+      </div>
+      <h3 class="text-xl sm:text-2xl font-black <%= netCash >= 0 ? 'text-indigo-600' : 'text-rose-600' %>">
+        Rp <%= netCash.toLocaleString("id-ID") %>
+      </h3>
+    </div>
+  </div>
+
+  <!-- Filter Form Card -->
+  <div class="bg-white rounded-3xl p-5 card-shadow border border-slate-100">
+    <form action="/admin/reports" method="get" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 items-end">
+      <div>
+        <label class="block text-[11px] font-bold text-slate-700 mb-1">Dari Tanggal</label>
+        <input
+          type="date"
+          name="startDate"
+          value="<%= query.startDate %>"
+          class="modern-input w-full px-3 py-2 rounded-xl text-xs text-slate-800"
+        />
+      </div>
+
+      <div>
+        <label class="block text-[11px] font-bold text-slate-700 mb-1">Sampai Tanggal</label>
+        <input
+          type="date"
+          name="endDate"
+          value="<%= query.endDate %>"
+          class="modern-input w-full px-3 py-2 rounded-xl text-xs text-slate-800"
+        />
+      </div>
+
+      <div>
+        <label class="block text-[11px] font-bold text-slate-700 mb-1">Jenis Transaksi</label>
+        <select name="type" class="modern-input w-full px-3 py-2 rounded-xl text-xs text-slate-800">
+          <option value="">Semua Jenis</option>
+          <option value="DEPOSIT" <%= query.type === 'DEPOSIT' ? 'selected' : '' %>>Setoran (+)</option>
+          <option value="WITHDRAWAL" <%= query.type === 'WITHDRAWAL' ? 'selected' : '' %>>Penarikan (-)</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-[11px] font-bold text-slate-700 mb-1">Filter Anggota</label>
+        <select name="memberId" class="modern-input w-full px-3 py-2 rounded-xl text-xs text-slate-800">
+          <option value="">Semua Anggota</option>
+          <% members.forEach(m => { %>
+          <option value="<%= m.id %>" <%= query.memberId == m.id ? 'selected' : '' %>>
+            <%= m.name %>
+          </option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-[11px] font-bold text-slate-700 mb-1">Petugas / Kasir</label>
+        <select name="cashierId" class="modern-input w-full px-3 py-2 rounded-xl text-xs text-slate-800">
+          <option value="">Semua Petugas</option>
+          <% (typeof staffList !== 'undefined' ? staffList : []).forEach(s => { %>
+          <option value="<%= s.id %>" <%= query.cashierId == s.id ? 'selected' : '' %>>
+            <%= s.role === 'ADMIN' ? '👑 Admin' : '💼 Kasir' %>: <%= s.name %>
+          </option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <button
+          type="submit"
+          class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-indigo-600/20"
+        >
+          <i class="fas fa-filter mr-1"></i> Terapkan
+        </button>
+        <a
+          href="/admin/reports"
+          class="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition-all"
+          title="Reset Filter"
+        >
+          <i class="fas fa-undo"></i>
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Transactions Table / List -->
+  <div class="bg-white rounded-3xl p-6 card-shadow border border-slate-100 overflow-hidden">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-sm font-bold text-slate-800">Data Transaksi Terfilter (<%= transactions.length %> Data)</h3>
+    </div>
+
+    <% if (transactions.length === 0) { %>
+    <div class="py-12 text-center">
+      <i class="fas fa-search text-slate-300 text-3xl mb-2"></i>
+      <p class="text-xs font-bold text-slate-700">Tidak ada data transaksi yang cocok dengan filter.</p>
+    </div>
+    <% } else { %>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs">
+        <thead>
+          <tr class="border-b border-slate-200 text-slate-400 font-bold uppercase text-[10px]">
+            <th class="pb-3 pr-4">No. Ref</th>
+            <th class="pb-3 pr-4">Tanggal & Waktu</th>
+            <th class="pb-3 pr-4">Anggota</th>
+            <th class="pb-3 pr-4">Jenis</th>
+            <th class="pb-3 pr-4">Nominal</th>
+            <th class="pb-3 pr-4">Petugas Loket</th>
+            <th class="pb-3">Catatan</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <% transactions.forEach(t => { %>
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="py-3 pr-4 font-mono font-bold text-indigo-600">TRX-<%= String(t.id).padStart(6, '0') %></td>
+            <td class="py-3 pr-4 text-slate-500"><%= new Date(t.createdAt).toLocaleString("id-ID") %></td>
+            <td class="py-3 pr-4">
+              <span class="font-bold text-slate-800 block"><%= t.member ? t.member.name : '-' %></span>
+              <span class="font-mono text-[10px] text-slate-400"><%= t.member ? (t.member.accountNumber || ('TBG-2026-' + String(t.member.id).padStart(4, '0'))) : '-' %></span>
+            </td>
+            <td class="py-3 pr-4">
+              <span class="px-2 py-0.5 rounded-md font-bold text-[10px] <%= t.type === 'DEPOSIT' ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700' %>">
+                <%= t.type === "DEPOSIT" ? "Setoran" : "Penarikan" %>
+              </span>
+            </td>
+            <td class="py-3 pr-4 font-black <%= t.type === 'DEPOSIT' ? 'text-emerald-600' : 'text-rose-600' %>">
+              <%= t.type === 'DEPOSIT' ? '+' : '-' %> Rp <%= Math.abs(t.amount).toLocaleString("id-ID") %>
+            </td>
+            <td class="py-3 pr-4">
+              <% if (t.cashier) { %>
+                <span class="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md text-[10px] font-bold <%= t.cashier.role === 'ADMIN' ? 'bg-purple-50 text-purple-700 border border-purple-200' : 'bg-blue-50 text-blue-700 border border-blue-200' %>">
+                  <i class="<%= t.cashier.role === 'ADMIN' ? 'fas fa-crown' : 'fas fa-user-tie' %> text-[9px]"></i>
+                  <span><%= t.cashier.role === 'ADMIN' ? 'Admin' : 'Kasir' %>: <%= t.cashier.name %></span>
+                </span>
+              <% } else { %>
+                <span class="text-slate-400 font-mono text-[10px]">Sistem</span>
+              <% } %>
+            </td>
+            <td class="py-3 text-slate-400 truncate max-w-[150px]"><%= t.description || '-' %></td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <% } %>
+  </div>
+</div>
+
+<%- include("../layouts/footer") %>

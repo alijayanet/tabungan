@@ -1,0 +1,120 @@
+<%- include("../layouts/header", { title: "Portal Petugas" }) %>
+
+<!-- Halaman Login Khusus Petugas (Admin & Kasir) -->
+<div class="flex-1 flex items-center justify-center py-4">
+  <div class="w-full max-w-sm">
+    <!-- Brand Icon & Greeting -->
+    <div class="text-center mb-6">
+      <div class="w-16 h-16 bg-slate-900 rounded-3xl flex items-center justify-center mx-auto mb-3 shadow-xl shadow-slate-950/20 border border-slate-700">
+        <i class="fas fa-shield-halved text-emerald-400 text-2xl"></i>
+      </div>
+      <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Portal Khusus Petugas</h2>
+      <p class="text-xs text-slate-500 mt-0.5">Akses terbatas untuk Kasir & Administrator</p>
+    </div>
+
+    <!-- Login Card -->
+    <div class="bg-white rounded-3xl p-6 card-shadow border border-slate-100">
+      <% if (typeof error !== "undefined" && error) { %>
+      <div class="mb-4 p-3.5 bg-rose-50 border border-rose-200 rounded-2xl flex items-start space-x-2.5 text-xs text-rose-700">
+        <i class="fas fa-exclamation-circle text-rose-500 text-sm shrink-0 mt-0.5"></i>
+        <span><%= error %></span>
+      </div>
+      <% } %>
+
+      <form action="/portal" method="post" class="space-y-4">
+        <!-- Role Selection -->
+        <div>
+          <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Pilih Peran Petugas</label>
+          <div class="grid grid-cols-2 gap-1.5 p-1 bg-slate-100 rounded-2xl">
+            <label class="cursor-pointer">
+              <input type="radio" name="role" value="ADMIN" class="peer sr-only" checked>
+              <div class="py-2 text-center rounded-xl text-xs font-bold text-slate-600 peer-checked:bg-white peer-checked:text-indigo-600 peer-checked:shadow-sm transition-all flex items-center justify-center space-x-1.5">
+                <i class="fas fa-user-shield text-xs"></i>
+                <span>Admin</span>
+              </div>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="role" value="KASIR" class="peer sr-only">
+              <div class="py-2 text-center rounded-xl text-xs font-bold text-slate-600 peer-checked:bg-white peer-checked:text-emerald-600 peer-checked:shadow-sm transition-all flex items-center justify-center space-x-1.5">
+                <i class="fas fa-cash-register text-xs"></i>
+                <span>Kasir</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Email Input -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1.5">Email Petugas</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+              <i class="far fa-envelope text-xs"></i>
+            </span>
+            <input
+              type="email"
+              name="email"
+              required
+              placeholder="admin@example.com / kasir@..."
+              class="modern-input w-full pl-10 pr-4 py-3 rounded-2xl text-xs text-slate-800 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        <!-- Password Input -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1.5">Kata Sandi Petugas</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+              <i class="fas fa-lock text-xs"></i>
+            </span>
+            <input
+              type="password"
+              name="password"
+              required
+              placeholder="••••••••"
+              id="passwordInput"
+              class="modern-input w-full pl-10 pr-10 py-3 rounded-2xl text-xs text-slate-800 focus:outline-none"
+            />
+            <button type="button" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600" onclick="togglePassword()">
+              <i class="far fa-eye text-xs" id="toggleIcon"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          class="w-full py-3.5 px-4 rounded-2xl bg-slate-900 hover:bg-slate-800 active:scale-98 text-white text-xs font-bold shadow-lg shadow-slate-900/20 transition-all flex items-center justify-center space-x-2"
+        >
+          <i class="fas fa-shield-alt text-xs text-emerald-400"></i>
+          <span>Otorisasi & Masuk Portal</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Back to Member Login Link -->
+    <div class="mt-6 text-center">
+      <a href="/login" class="inline-flex items-center space-x-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors">
+        <i class="fas fa-arrow-left text-[10px]"></i>
+        <span>Kembali ke Halaman Login Anggota</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  function togglePassword() {
+    const passwordInput = document.getElementById('passwordInput');
+    const toggleIcon = document.getElementById('toggleIcon');
+    
+    if (passwordInput.type === 'password') {
+      passwordInput.type = 'text';
+      toggleIcon.className = "far fa-eye-slash text-xs";
+    } else {
+      passwordInput.type = 'password';
+      toggleIcon.className = "far fa-eye text-xs";
+    }
+  }
+</script>
+
+<%- include("../layouts/footer") %>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tiket Antrean #<%= queue.queueNumber %></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&display=swap');
+    * {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .font-mono {
+      font-family: 'Space Mono', monospace;
+    }
+
+    /* Print Format Karcis Thermal 58mm */
+    @media print {
+      @page {
+        size: 58mm auto;
+        margin: 0;
+      }
+      html, body {
+        width: 58mm !important;
+        max-width: 58mm !important;
+        min-width: 58mm !important;
+        margin: 0 auto !important;
+        padding: 2mm 3mm !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-size: 8.5pt !important;
+        line-height: 1.25 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .ticket-card {
+        box-shadow: none !important;
+        border: none !important;
+        border-radius: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+      }
+      * {
+        color: #000000 !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen flex flex-col items-center justify-center p-3 sm:p-4 select-none">
+
+  <!-- Ticket Card Container (Thermal 58mm standard) -->
+  <div class="ticket-card bg-white max-w-[300px] w-full rounded-3xl p-5 shadow-2xl border border-slate-200 text-center space-y-3.5 relative">
+    
+    <!-- Top Header -->
+    <div class="pb-2.5 border-b border-dashed border-slate-300">
+      <h2 class="text-sm font-black uppercase tracking-tight text-slate-900 leading-tight"><%= appName %></h2>
+      <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">TIKET NOMOR ANTREAN</p>
+      <p class="text-[9px] text-slate-400 font-mono"><%= new Date(queue.createdAt).toLocaleDateString("id-ID", { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) %></p>
+    </div>
+
+    <!-- Jumbo Queue Number -->
+    <div class="py-1">
+      <span class="inline-block px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-slate-100 text-slate-700">
+        <%= queue.serviceType === 'DAFTAR' ? '📝 DAFTAR ANGGOTA BARU' : (queue.serviceType === 'SETOR' ? '📥 SETOR TUNAI' : (queue.serviceType === 'TARIK' ? '📤 TARIK TUNAI' : '💼 INFORMASI & CS')) %>
+      </span>
+      <h1 class="text-5xl font-black font-mono tracking-tight text-slate-900 my-1">
+        <%= queue.queueNumber %>
+      </h1>
+      <p class="text-[11px] font-bold text-indigo-700">
+        <%= queue.counterName || 'Silakan Menunggu Panggilan Loket' %>
+      </p>
+    </div>
+
+    <!-- Details Box -->
+    <div class="p-2.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-1 text-[11px] text-slate-600 text-left">
+      <div class="flex justify-between">
+        <span>Sisa Antrean di Depan:</span>
+        <b class="text-slate-900"><%= waitingBefore %> Orang</b>
+      </div>
+      <% if (queue.notes) { %>
+      <div class="text-[10px] text-slate-500 truncate pt-1 border-t border-slate-200">
+        <%= queue.notes %>
+      </div>
+      <% } %>
+    </div>
+
+    <!-- QR Code Verification on Ticket -->
+    <div class="flex flex-col items-center justify-center pt-1">
+      <div id="ticketQr" class="p-1.5 bg-white border border-slate-200 rounded-lg"></div>
+      <span class="text-[8px] text-slate-400 font-mono mt-1">Kode: <%= queue.queueNumber %></span>
+    </div>
+
+    <!-- Footer Note -->
+    <div class="text-[10px] text-slate-400">
+      <p>Simpan tiket ini sampai giliran Anda dipanggil.</p>
+      <p class="text-[9px] font-semibold text-slate-600 mt-0.5">Terima kasih atas kunjungan Anda.</p>
+    </div>
+
+    <!-- Actions (Hidden in Print) -->
+    <div class="no-print pt-2 space-y-2">
+      <button
+        type="button"
+        onclick="window.print()"
+        class="w-full py-3 bg-slate-900 hover:bg-slate-800 active:scale-98 text-white rounded-2xl text-xs font-bold flex items-center justify-center space-x-2 shadow-lg shadow-slate-900/10 transition-all"
+      >
+        <i class="fas fa-print"></i>
+        <span>Cetak Karcis (Thermal 58mm)</span>
+      </button>
+
+      <a
+        href="/antrean"
+        class="block w-full py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-2xl text-xs font-bold transition-all text-center"
+      >
+        <span>Ambil Antrean Baru / Selesai</span>
+      </a>
+    </div>
+  </div>
+
+  <script>
+    new QRCode(document.getElementById("ticketQr"), {
+      text: "<%= queue.queueNumber %>|<%= queue.serviceType %>|<%= queue.id %>",
+      width: 60,
+      height: 60,
+      colorDark : "#000000",
+      colorLight : "#ffffff",
+      correctLevel : QRCode.CorrectLevel.M
+    });
+
+    <% if (isNew) { %>
+    // Auto-print saat tiket baru diambil di kios mandiri
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        // window.print();
+      }, 500);
+    });
+    <% } %>
+  </script>
+</body>
+</html>

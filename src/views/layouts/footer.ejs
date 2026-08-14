@@ -1,0 +1,137 @@
+    </main>
+
+    <!-- Modern Bottom Navigation (Mobile Only - Hidden on Desktop for Staff) -->
+    <% if (currentUser) { %>
+    <footer class="fixed bottom-0 left-0 right-0 z-40 <%= (currentUser.role === 'ADMIN' || currentUser.role === 'KASIR') ? 'md:hidden' : '' %>">
+      <div class="max-w-md sm:max-w-lg mx-auto px-3 pb-3">
+        <nav class="glass-nav border border-slate-200/90 px-2 py-1.5 shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-3xl backdrop-blur-xl">
+          <% if (currentUser.role === "ADMIN") { %>
+          <div class="grid grid-cols-5 gap-1 items-center">
+            <a href="/admin/dashboard" class="nav-item flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-slate-500 hover:text-indigo-600 active:scale-95 transition-all">
+              <i class="fas fa-chart-pie text-base mb-1"></i>
+              <span class="text-[9px] font-bold">Dasbor</span>
+            </a>
+            <a href="/admin/reports" class="nav-item flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-slate-500 hover:text-indigo-600 active:scale-95 transition-all">
+              <i class="fas fa-file-invoice text-base mb-1"></i>
+              <span class="text-[9px] font-bold">Laporan</span>
+            </a>
+            <a href="/admin/broadcast" class="nav-item flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-slate-500 hover:text-emerald-600 active:scale-95 transition-all">
+              <i class="fas fa-bullhorn text-base mb-1"></i>
+              <span class="text-[9px] font-bold">Broadcast</span>
+            </a>
+            <a href="/admin/members" class="nav-item flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-slate-500 hover:text-indigo-600 active:scale-95 transition-all">
+              <i class="fas fa-users text-base mb-1"></i>
+              <span class="text-[9px] font-bold">Anggota</span>
+            </a>
+            <a href="/admin/settings" class="nav-item flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-slate-500 hover:text-indigo-600 active:scale-95 transition-all">
+              <i class="fas fa-sliders-h text-base mb-1"></i>
+              <span class="text-[9px] font-bold">Sistem</span>
+            </a>
+          </div>
+
+          <% } else if (currentUser.role === "KASIR") { %>
+          <div class="grid grid-cols-5 gap-1 items-center">
+            <a href="/kasir/dashboard" class="nav-item flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-slate-500 hover:text-emerald-600 active:scale-95 transition-all">
+              <i class="fas fa-home text-base mb-1"></i>
+              <span class="text-[9px] font-bold">Beranda</span>
+            </a>
+            <a href="/kasir/setoran" class="nav-item flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-slate-500 hover:text-emerald-600 active:scale-95 transition-all">
+              <i class="fas fa-arrow-circle-down text-base mb-1 text-emerald-600"></i>
+              <span class="text-[9px] font-bold">Setor</span>
+            </a>
+            <a href="/kasir/penarikan" class="nav-item flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-slate-500 hover:text-emerald-600 active:scale-95 transition-all">
+              <i class="fas fa-arrow-circle-up text-base mb-1 text-amber-600"></i>
+              <span class="text-[9px] font-bold">Tarik</span>
+            </a>
+            <a href="/kasir/reports" class="nav-item flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-slate-500 hover:text-emerald-600 active:scale-95 transition-all">
+              <i class="fas fa-file-invoice text-base mb-1"></i>
+              <span class="text-[9px] font-bold">Laporan</span>
+            </a>
+            <a href="/kasir/anggota" class="nav-item flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-slate-500 hover:text-emerald-600 active:scale-95 transition-all">
+              <i class="fas fa-users text-base mb-1"></i>
+              <span class="text-[9px] font-bold">Anggota</span>
+            </a>
+          </div>
+
+          <% } else if (currentUser.role === "ANGGOTA") { %>
+          <div class="grid grid-cols-4 gap-1 items-center">
+            <a href="/anggota/dashboard" class="nav-item flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-slate-500 hover:text-indigo-600 active:scale-95 transition-all">
+              <i class="fas fa-wallet text-base mb-1"></i>
+              <span class="text-[9px] font-bold">Dompet</span>
+            </a>
+            <a href="/anggota/buku-tabungan" class="nav-item flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-slate-500 hover:text-indigo-600 active:scale-95 transition-all">
+              <i class="fas fa-book text-base mb-1"></i>
+              <span class="text-[9px] font-bold">Buku Kas</span>
+            </a>
+            <a href="/anggota/penarikan" class="nav-item flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-slate-500 hover:text-indigo-600 active:scale-95 transition-all">
+              <i class="fas fa-hand-holding-usd text-base mb-1"></i>
+              <span class="text-[9px] font-bold">Tarik</span>
+            </a>
+            <a href="/password" class="nav-item flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-slate-500 hover:text-indigo-600 active:scale-95 transition-all">
+              <i class="fas fa-shield-alt text-base mb-1"></i>
+              <span class="text-[9px] font-bold">PIN</span>
+            </a>
+          </div>
+          <% } %>
+        </nav>
+      </div>
+    </footer>
+    <% } %>
+  </div>
+
+  <!-- Global Scripts -->
+  <script>
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    
+    function showLoading() {
+      if (loadingOverlay) loadingOverlay.classList.remove('hidden');
+    }
+    
+    function hideLoading() {
+      if (loadingOverlay) loadingOverlay.classList.add('hidden');
+    }
+
+    // Highlight current active tab in footer & desktop nav
+    document.addEventListener('DOMContentLoaded', () => {
+      const currentPath = window.location.pathname;
+
+      // Highlight Desktop Header Nav
+      const desktopNavLinks = document.querySelectorAll('header nav a');
+      desktopNavLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href && (currentPath === href || (href.length > 7 && currentPath.startsWith(href)))) {
+          link.classList.add('bg-white/20', 'text-white', 'shadow-sm');
+          link.classList.remove('text-slate-200');
+        }
+      });
+
+      // Highlight Mobile Bottom Footer Nav
+      const footerNavLinks = document.querySelectorAll('footer nav a');
+      footerNavLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        const isMatch = href && (
+          currentPath === href || 
+          (href !== '/admin/dashboard' && href !== '/kasir/dashboard' && href !== '/anggota/dashboard' && currentPath.startsWith(href))
+        );
+
+        if (isMatch) {
+          link.classList.add('bg-indigo-50', 'text-indigo-600', 'font-black');
+          link.classList.remove('text-slate-500');
+          // Khusus kasir jika tema hijau
+          if (link.closest('nav').querySelector('a[href="/kasir/dashboard"]')) {
+            link.classList.add('bg-emerald-50', 'text-emerald-700');
+            link.classList.remove('bg-indigo-50', 'text-indigo-600');
+          }
+        }
+      });
+    });
+
+    // PWA Service Worker registration
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= typeof title !== "undefined" ? title + " | " + appName : appName %></title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="icon" sizes="192x192" href="/icons/app-192.png">
+  <link rel="apple-touch-icon" href="/icons/app-192.png">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- QRCode.js & HTML5-QRCode Scanner -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    
+    * {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Premium Modern Themes */
+    .bg-fintech-dark { background-color: #0b1329; }
+    .fintech-gradient {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #172554 100%);
+    }
+    .emerald-gradient {
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    }
+    .card-virtual {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e1b4b 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .card-virtual::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 250px;
+      height: 250px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .card-virtual::after {
+      content: '';
+      position: absolute;
+      bottom: -40%;
+      left: -20%;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    /* Smooth Shadows & Surfaces */
+    .card-shadow {
+      box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.08), 0 4px 6px -2px rgba(15, 23, 42, 0.04);
+    }
+    .card-shadow-lg {
+      box-shadow: 0 20px 35px -10px rgba(15, 23, 42, 0.15);
+    }
+    .glass-nav {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    /* Quick Action Button Styles */
+    .action-circle-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .action-circle-btn:active {
+      transform: scale(0.92);
+    }
+
+    /* Modern Inputs & Buttons */
+    .modern-input {
+      border: 1.5px solid #e2e8f0;
+      transition: all 0.2s ease;
+    }
+    .modern-input:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+    }
+
+    .btn-emerald {
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      color: white;
+      transition: all 0.2s ease;
+    }
+    .btn-emerald:active {
+      transform: scale(0.98);
+      filter: brightness(0.95);
+    }
+
+    /* Touch Targets */
+    @media (hover: none) {
+      button, a, input, select, textarea {
+        min-height: 44px;
+      }
+    }
+
+    /* Global Modal Animations */
+    .modal-backdrop {
+      background-color: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-100 text-slate-800 antialiased selection:bg-indigo-500 selection:text-white">
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 hidden transition-opacity duration-300">
+    <div class="bg-white p-5 rounded-2xl shadow-xl flex flex-col items-center space-y-3">
+      <div class="w-10 h-10 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin"></div>
+      <p class="text-xs font-semibold text-slate-600">Memproses...</p>
+    </div>
+  </div>
+  
+  <% 
+    const isStaff = currentUser && (currentUser.role === 'ADMIN' || currentUser.role === 'KASIR');
+    const containerClass = isStaff ? 'max-w-6xl w-full mx-auto' : 'max-w-md sm:max-w-lg mx-auto w-full';
+  %>
+
+  <div class="<%= containerClass %> min-h-screen flex flex-col relative bg-slate-50 shadow-sm border-x border-slate-200/50">
+    <!-- Modern Header / App Bar (Responsive for Desktop & Mobile) -->
+    <header class="fintech-gradient text-white px-5 sm:px-8 pt-5 pb-6 rounded-b-[2rem] shadow-xl relative z-10">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-white/10 flex items-center justify-center border border-white/10 backdrop-blur-md shadow-inner">
+            <i class="fas fa-wallet text-indigo-300 text-lg sm:text-xl"></i>
+          </div>
+          <div>
+            <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-white leading-tight"><%= appName %></h1>
+            <% if (currentUser) { %>
+              <div class="flex items-center space-x-1.5 mt-0.5">
+                <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-[11px] font-medium text-slate-300 tracking-wide uppercase"><%= currentUser.role %></span>
+              </div>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- Desktop Navigation Bar (Only for Staff / Admin / Kasir on Large Screens) -->
+        <% if (currentUser && isStaff) { %>
+        <nav class="hidden md:flex items-center space-x-1 bg-white/10 px-3 py-1.5 rounded-2xl border border-white/10 backdrop-blur-md text-xs font-bold">
+          <% if (currentUser.role === "ADMIN") { %>
+            <a href="/admin/dashboard" class="px-2.5 py-1.5 rounded-xl hover:bg-white/15 text-slate-200 hover:text-white transition-all flex items-center space-x-1">
+              <i class="fas fa-chart-pie text-xs"></i>
+              <span>Dashboard</span>
+            </a>
+            <a href="/kasir/setoran" class="px-2.5 py-1.5 rounded-xl hover:bg-white/15 text-emerald-300 hover:text-white transition-all flex items-center space-x-1">
+              <i class="fas fa-arrow-circle-down text-xs"></i>
+              <span>Setor</span>
+            </a>
+            <a href="/kasir/penarikan" class="px-2.5 py-1.5 rounded-xl hover:bg-white/15 text-amber-300 hover:text-white transition-all flex items-center space-x-1">
+              <i class="fas fa-arrow-circle-up text-xs"></i>
+              <span>Tarik</span>
+            </a>
+            <a href="/admin/reports" class="px-2.5 py-1.5 rounded-xl hover:bg-white/15 text-slate-200 hover:text-white transition-all flex items-center space-x-1">
+              <i class="fas fa-file-invoice text-xs"></i>
+              <span>Laporan</span>
+            </a>
+            <a href="/admin/broadcast" class="px-2.5 py-1.5 rounded-xl hover:bg-white/15 text-emerald-300 hover:text-white transition-all flex items-center space-x-1">
+              <i class="fas fa-bullhorn text-xs"></i>
+              <span>Broadcast</span>
+            </a>
+            <a href="/admin/cashiers" class="px-2.5 py-1.5 rounded-xl hover:bg-white/15 text-slate-200 hover:text-white transition-all flex items-center space-x-1">
+              <i class="fas fa-cash-register text-xs"></i>
+              <span>Kasir</span>
+            </a>
+            <a href="/admin/members" class="px-2.5 py-1.5 rounded-xl hover:bg-white/15 text-slate-200 hover:text-white transition-all flex items-center space-x-1">
+              <i class="fas fa-users text-xs"></i>
+              <span>Anggota</span>
+            </a>
+            <a href="/admin/whatsapp" class="px-2.5 py-1.5 rounded-xl hover:bg-white/15 text-slate-200 hover:text-white transition-all flex items-center space-x-1">
+              <i class="fab fa-whatsapp text-emerald-400 text-xs"></i>
+              <span>WhatsApp</span>
+            </a>
+            <a href="/admin/settings" class="px-2.5 py-1.5 rounded-xl hover:bg-white/15 text-slate-200 hover:text-white transition-all flex items-center space-x-1">
+              <i class="fas fa-sliders-h text-xs"></i>
+              <span>Pengaturan</span>
+            </a>
+          <% } else if (currentUser.role === "KASIR") { %>
+            <a href="/kasir/dashboard" class="px-2.5 py-1.5 rounded-xl hover:bg-white/15 text-slate-200 hover:text-white transition-all flex items-center space-x-1">
+              <i class="fas fa-home text-xs"></i>
+              <span>Beranda</span>
+            </a>
+            <a href="/kasir/setoran" class="px-2.5 py-1.5 rounded-xl hover:bg-white/15 text-emerald-300 hover:text-white transition-all flex items-center space-x-1">
+              <i class="fas fa-arrow-circle-down text-xs"></i>
+              <span>Setoran</span>
+            </a>
+            <a href="/kasir/penarikan" class="px-2.5 py-1.5 rounded-xl hover:bg-white/15 text-amber-300 hover:text-white transition-all flex items-center space-x-1">
+              <i class="fas fa-arrow-circle-up text-xs"></i>
+              <span>Tarik Tunai</span>
+            </a>
+            <a href="/kasir/antrean" class="px-2.5 py-1.5 rounded-xl hover:bg-white/15 text-indigo-300 hover:text-white transition-all flex items-center space-x-1">
+              <i class="fas fa-bullhorn text-xs"></i>
+              <span>Antrean Loket</span>
+            </a>
+            <a href="/kasir/reports" class="px-2.5 py-1.5 rounded-xl hover:bg-white/15 text-slate-200 hover:text-white transition-all flex items-center space-x-1">
+              <i class="fas fa-file-invoice text-xs"></i>
+              <span>Laporan</span>
+            </a>
+            <a href="/kasir/anggota" class="px-2.5 py-1.5 rounded-xl hover:bg-white/15 text-slate-200 hover:text-white transition-all flex items-center space-x-1">
+              <i class="fas fa-users text-xs"></i>
+              <span>Anggota</span>
+            </a>
+          <% } %>
+        </nav>
+        <% } %>
+
+        <% if (currentUser) { %>
+        <div class="flex items-center space-x-2">
+          <form action="/logout" method="post" class="inline" data-no-loading>
+            <button type="submit" title="Keluar" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-white/10 hover:bg-rose-500/30 active:scale-95 flex items-center justify-center border border-white/10 backdrop-blur-md transition-all text-slate-200 hover:text-rose-200">
+              <i class="fas fa-sign-out-alt text-sm"></i>
+            </button>
+          </form>
+        </div>
+        <% } %>
+      </div>
+
+      <% if (currentUser) { %>
+      <div class="mt-4 flex items-center justify-between bg-white/5 border border-white/10 rounded-2xl px-4 py-2.5 backdrop-blur-md">
+        <div class="flex items-center space-x-2.5 overflow-hidden">
+          <div class="w-8 h-8 rounded-xl bg-indigo-500/30 flex items-center justify-center text-indigo-200 text-xs font-extrabold shrink-0 border border-indigo-400/30">
+            <%= currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U' %>
+          </div>
+          <div>
+            <span class="text-xs font-bold text-slate-100 truncate block"><%= currentUser.name %></span>
+            <span class="text-[10px] text-slate-400 font-mono"><%= currentUser.email %></span>
+          </div>
+        </div>
+        <span class="text-xs text-slate-300 font-medium bg-white/10 px-2.5 py-1 rounded-xl">
+          <%= new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+        </span>
+      </div>
+      <% } %>
+    </header>
+
+    <main class="flex-1 px-4 sm:px-6 py-5 pb-24 md:pb-8">

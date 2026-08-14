@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Layar Monitor Antrean Loket | <%= appName %></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&display=swap');
+    * {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .font-mono {
+      font-family: 'Space Mono', monospace;
+    }
+    .glow-effect {
+      box-shadow: 0 0 50px rgba(99, 102, 241, 0.25);
+    }
+    .calling-pulse {
+      animation: pulseGlow 1.5s infinite;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); filter: brightness(1); }
+      50% { transform: scale(1.02); filter: brightness(1.2); }
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-white min-h-screen flex flex-col justify-between p-4 sm:p-8 overflow-hidden select-none">
+
+  <!-- Top TV Header Bar -->
+  <header class="flex items-center justify-between bg-slate-900/80 border border-slate-800 rounded-3xl px-6 py-4 backdrop-blur-xl shadow-2xl">
+    <div class="flex items-center space-x-4">
+      <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-xl font-black text-white shadow-lg shadow-indigo-500/30">
+        <i class="fas fa-wallet"></i>
+      </div>
+      <div>
+        <h1 class="text-lg sm:text-xl font-black tracking-tight text-white uppercase"><%= appName %></h1>
+        <p class="text-xs text-slate-400 font-medium">Sistem Pemanggilan Antrean Terpadu</p>
+      </div>
+    </div>
+
+    <!-- Live Digital Clock -->
+    <div class="text-right">
+      <div class="text-xl sm:text-2xl font-mono font-black text-indigo-400" id="liveClock">00:00:00</div>
+      <div class="text-xs text-slate-400" id="liveDate">Memuat tanggal...</div>
+    </div>
+  </header>
+
+  <!-- Main Split Layout (Fullscreen TV Ready) -->
+  <main class="grid grid-cols-1 lg:grid-cols-12 gap-6 my-6 flex-1 items-stretch">
+    
+    <!-- Left Section: Jumbo Active Calling Screen (7 cols) -->
+    <div class="lg:col-span-7 flex flex-col">
+      <div class="flex-1 bg-gradient-to-b from-slate-900 to-slate-950 border-2 border-indigo-500/40 rounded-3xl p-8 flex flex-col justify-between text-center relative overflow-hidden glow-effect">
+        <div class="absolute -right-20 -top-20 w-64 h-64 bg-indigo-600/10 rounded-full blur-3xl"></div>
+
+        <div class="flex items-center justify-between">
+          <span class="px-4 py-1.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-black uppercase tracking-widest flex items-center space-x-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+            <span>SEDANG DIPANGGIL</span>
+          </span>
+          <span class="text-xs text-slate-400 font-mono" id="voiceStatus">🔊 Audio Otomatis Aktif</span>
+        </div>
+
+        <!-- Jumbo Calling Number -->
+        <div class="my-auto py-6">
+          <p class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-2">NOMOR ANTREAN</p>
+          <div id="callingNumberBox" class="text-7xl sm:text-9xl font-black font-mono tracking-tight text-amber-300 calling-pulse">
+            ---
+          </div>
+          <p class="text-base sm:text-lg font-bold text-slate-300 mt-3" id="callingServiceType">
+            Menunggu Panggilan Loket...
+          </p>
+        </div>
+
+        <!-- Counter Destination -->
+        <div class="bg-indigo-600/20 border border-indigo-500/40 rounded-2xl p-4 flex items-center justify-between">
+          <span class="text-sm font-bold text-indigo-200">SILAKAN MENUJU KE:</span>
+          <span class="text-xl sm:text-2xl font-black text-white font-mono" id="callingCounterName">
+            LOKET KASIR
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Section: Next Waiting List (5 cols) -->
+    <div class="lg:col-span-5 flex flex-col space-y-4">
+      <div class="flex-1 bg-slate-900/90 border border-slate-800 rounded-3xl p-6 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+            <h3 class="text-sm font-black uppercase tracking-wider text-slate-300">Antrean Berikutnya</h3>
+            <span class="px-3 py-1 rounded-full bg-slate-800 text-indigo-400 text-xs font-bold font-mono" id="waitingCountBadge">
+              0 Menunggu
+            </span>
+          </div>
+
+          <!-- Waiting List Items Container -->
+          <div class="space-y-2.5" id="waitingListContainer">
+            <div class="py-12 text-center text-xs text-slate-500">
+              Memuat data antrean...
+            </div>
+          </div>
+        </div>
+
+        <!-- Info Bar at Bottom of Right Column -->
+        <div class="mt-4 p-3.5 rounded-2xl bg-slate-950 border border-slate-800 text-[11px] text-slate-400 flex items-center space-x-2">
+          <i class="fas fa-info-circle text-indigo-400 text-sm shrink-0"></i>
+          <span>Mohon siapkan buku tabungan / aplikasi sebelum giliran dipanggil.</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- TV Footer Running Ticker -->
+  <footer class="bg-slate-900 border border-slate-800 rounded-2xl px-6 py-2.5 flex items-center justify-between text-xs text-slate-400">
+    <div class="flex items-center space-x-2">
+      <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+      <span class="font-bold text-slate-300">Live Status:</span>
+      <span>Pelayanan Loket Tabungan Aktif</span>
+    </div>
+    <div class="text-[11px] font-mono text-slate-500">
+      Tekan <b class="text-slate-400">F11</b> untuk Fullscreen Layar TV
+    </div>
+  </footer>
+
+  <!-- Audio Chime & Speech Synthesis Controller -->
+  <script>
+    let lastCalledId = null;
+    let isFirstLoad = true;
+
+    // Digital Clock
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('liveClock').textContent = now.toLocaleTimeString('id-ID');
+      document.getElementById('liveDate').textContent = now.toLocaleDateString('id-ID', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Chime Tone Synthesizer
+    function playAirportChime() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
+        notes.forEach((freq, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime + (idx * 0.25));
+          gain.gain.setValueAtTime(0.3, audioCtx.currentTime + (idx * 0.25));
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (idx * 0.25) + 0.4);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(audioCtx.currentTime + (idx * 0.25));
+          osc.stop(audioCtx.currentTime + (idx * 0.25) + 0.45);
+        });
+      } catch (e) {}
+    }
+
+    // Voice Synthesis ID
+    function speakQueue(queueNumber, counterName) {
+      if (!window.speechSynthesis) return;
+
+      const parts = queueNumber.split('-');
+      const letter = parts[0] || 'A';
+      const numDigits = (parts[1] || '').split('').map(d => {
+        const dict = { '0': 'nol', '1': 'satu', '2': 'dua', '3': 'tiga', '4': 'empat', '5': 'lima', '6': 'enam', '7': 'tujuh', '8': 'delapan', '9': 'sembilan' };
+        return dict[d] || d;
+      }).join(' ');
+
+      const text = `Nomor antrean, ${letter}, ${numDigits}. Silakan menuju ke ${counterName || 'Loket Kasir'}.`;
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "id-ID";
+      utterance.rate = 0.9;
+
+      const voices = window.speechSynthesis.getVoices();
+      const indonesianVoice = voices.find(v => v.lang && v.lang.includes("id"));
+      if (indonesianVoice) utterance.voice = indonesianVoice;
+
+      setTimeout(() => {
+        window.speechSynthesis.speak(utterance);
+      }, 850);
+    }
+
+    function triggerVoiceCall(queueNumber, counterName) {
+      playAirportChime();
+      speakQueue(queueNumber, counterName);
+    }
+
+    // Polling Antrean Realtime
+    async function fetchQueueState() {
+      try {
+        const res = await fetch('/api/queue/state');
+        const data = await res.json();
+
+        // Update Active Calling Screen
+        if (data.currentlyServing) {
+          const c = data.currentlyServing;
+          document.getElementById('callingNumberBox').textContent = c.queueNumber;
+          document.getElementById('callingCounterName').textContent = c.counterName || "LOKET KASIR";
+
+          const serviceMap = { 'SETOR': '📥 Layanan Setor Tunai', 'TARIK': '📤 Layanan Tarik Tunai', 'CS': '💼 Customer Service' };
+          document.getElementById('callingServiceType').textContent = (serviceMap[c.serviceType] || 'Pelayanan Kasir') + (c.member ? (' • ' + c.member.name) : '');
+
+          // Check if this is a newly called queue -> Trigger Voice!
+          if (c.id !== lastCalledId) {
+            lastCalledId = c.id;
+            if (!isFirstLoad) {
+              triggerVoiceCall(c.queueNumber, c.counterName || "Loket Kasir");
+            }
+          }
+        } else {
+          document.getElementById('callingNumberBox').textContent = "---";
+          document.getElementById('callingServiceType').textContent = "Menunggu Panggilan Loket...";
+          document.getElementById('callingCounterName').textContent = "LOKET KASIR";
+        }
+
+        // Update Waiting List
+        document.getElementById('waitingCountBadge').textContent = data.totalWaiting + " Menunggu";
+        const container = document.getElementById('waitingListContainer');
+
+        if (data.waitingList.length === 0) {
+          container.innerHTML = `
+            <div class="py-10 text-center text-xs text-slate-500">
+              <i class="fas fa-check-circle text-2xl text-emerald-500 mb-2"></i>
+              <p class="font-bold text-slate-400">Tidak ada antrean menunggu</p>
+            </div>
+          `;
+        } else {
+          container.innerHTML = data.waitingList.map((q, idx) => `
+            <div class="p-3 bg-slate-950/80 border border-slate-800 rounded-2xl flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <span class="w-8 h-8 rounded-xl bg-slate-800 text-indigo-300 font-mono font-bold text-xs flex items-center justify-center">
+                  ${idx + 1}
+                </span>
+                <div>
+                  <h4 class="font-mono font-black text-base text-white">${q.queueNumber}</h4>
+                  <p class="text-[10px] text-slate-400">${q.serviceType === 'SETOR' ? 'Setor Tunai' : (q.serviceType === 'TARIK' ? 'Tarik Tunai' : 'CS')}</p>
+                </div>
+              </div>
+              <span class="px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-300 text-[10px] font-bold">
+                Menunggu
+              </span>
+            </div>
+          `).join('');
+        }
+
+        isFirstLoad = false;
+      } catch (err) {
+        console.error("Fetch queue error:", err);
+      }
+    }
+
+    // Auto-poll every 2.5 seconds
+    setInterval(fetchQueueState, 2500);
+    fetchQueueState();
+  </script>
+</body>
+</html>

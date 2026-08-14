@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Generator Icon PNG</title>
+  <style>
+    body { font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; margin:24px; color:#1f2937; }
+    .row { display:flex; gap:24px; flex-wrap:wrap; }
+    .card { border:1px solid #e5e7eb; border-radius:12px; padding:16px; width:320px; }
+    .btn { display:inline-block; padding:10px 14px; border-radius:10px; background:#2563eb; color:#fff; text-decoration:none; font-weight:600; margin-right:8px; }
+    .preview { border-radius:16px; width:128px; height:128px; border:1px solid #e5e7eb; background:#f9fafb; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+  </style>
+  <script>
+    async function svgToPngFrom(path, size) {
+      const svgResp = await fetch(path);
+      const svgText = await svgResp.text();
+      const svgBlob = new Blob([svgText], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(svgBlob);
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      return new Promise((resolve) => {
+        img.onload = function () {
+          const canvas = document.createElement('canvas');
+          canvas.width = size; canvas.height = size;
+          const ctx = canvas.getContext('2d');
+          ctx.clearRect(0,0,size,size);
+          ctx.drawImage(img, 0, 0, size, size);
+          canvas.toBlob(function (blob) {
+            const pngUrl = URL.createObjectURL(blob);
+            resolve({ url: pngUrl, blob });
+            URL.revokeObjectURL(url);
+          }, 'image/png');
+        };
+        img.src = url;
+      });
+    }
+    async function init() {
+      const p192 = await svgToPngFrom('/icons/app-icon.svg', 192);
+      const p512 = await svgToPngFrom('/icons/app-icon.svg', 512);
+      const d192 = document.getElementById('d192');
+      const d512 = document.getElementById('d512');
+      d192.href = p192.url; d192.download = 'app-192.png';
+      d512.href = p512.url; d512.download = 'app-512.png';
+      document.getElementById('prev192').src = p192.url;
+      document.getElementById('prev512').src = p512.url;
+
+      const ra192 = await svgToPngFrom('/icons/admin-icon.svg', 192);
+      const rk192 = await svgToPngFrom('/icons/kasir-icon.svg', 192);
+      const rg192 = await svgToPngFrom('/icons/anggota-icon.svg', 192);
+      document.getElementById('prevAdmin').src = ra192.url;
+      document.getElementById('prevKasir').src = rk192.url;
+      document.getElementById('prevAnggota').src = rg192.url;
+      document.getElementById('dAdmin').href = ra192.url; document.getElementById('dAdmin').download = 'admin-192.png';
+      document.getElementById('dKasir').href = rk192.url; document.getElementById('dKasir').download = 'kasir-192.png';
+      document.getElementById('dAnggota').href = rg192.url; document.getElementById('dAnggota').download = 'anggota-192.png';
+    }
+    window.addEventListener('load', init);
+  </script>
+  </head>
+<body>
+  <h1>Generator Icon PNG</h1>
+  <p>Gunakan halaman ini untuk mengekspor ikon PNG dari ikon SVG aplikasi.</p>
+  <div class="row">
+    <div class="card">
+      <h2>192×192</h2>
+      <div class="preview"><img id="prev192" alt="preview 192"></div>
+      <p style="margin-top:12px">
+        <a id="d192" class="btn" href="#">Download app-192.png</a>
+      </p>
+    </div>
+    <div class="card">
+      <h2>512×512</h2>
+      <div class="preview"><img id="prev512" alt="preview 512"></div>
+      <p style="margin-top:12px">
+        <a id="d512" class="btn" href="#">Download app-512.png</a>
+      </p>
+    </div>
+    <div class="card">
+      <h2>Shortcut Admin</h2>
+      <div class="preview"><img id="prevAdmin" alt="preview admin"></div>
+      <p style="margin-top:12px">
+        <a id="dAdmin" class="btn" href="#">Download admin-192.png</a>
+      </p>
+    </div>
+    <div class="card">
+      <h2>Shortcut Kasir</h2>
+      <div class="preview"><img id="prevKasir" alt="preview kasir"></div>
+      <p style="margin-top:12px">
+        <a id="dKasir" class="btn" href="#">Download kasir-192.png</a>
+      </p>
+    </div>
+    <div class="card">
+      <h2>Shortcut Anggota</h2>
+      <div class="preview"><img id="prevAnggota" alt="preview anggota"></div>
+      <p style="margin-top:12px">
+        <a id="dAnggota" class="btn" href="#">Download anggota-192.png</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<%- include("../layouts/header", { title: "Tiket Antrean Loket" }) %>
+
+<div class="max-w-md mx-auto space-y-5">
+  <!-- Top Stat Banner -->
+  <div class="bg-gradient-to-r from-indigo-600 via-purple-700 to-indigo-800 rounded-3xl p-5 text-white shadow-lg flex items-center justify-between">
+    <div>
+      <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-200">
+        Loket Antrean Digital
+      </span>
+      <h2 class="text-xl font-black mt-0.5">Ambil Antrean</h2>
+      <p class="text-xs text-indigo-100 mt-0.5">Dapatkan nomor giliran loket kasir & pantau posisimu</p>
+    </div>
+    <div class="text-right">
+      <span class="text-[10px] text-indigo-200 uppercase font-semibold">Sedang Dipanggil</span>
+      <h3 class="text-xl font-black text-amber-300 font-mono">
+        <%= currentlyServing ? currentlyServing.queueNumber : '-' %>
+      </h3>
+    </div>
+  </div>
+
+  <% if (success) { %>
+  <div class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center space-x-2.5">
+    <i class="fas fa-check-circle text-emerald-500 text-base shrink-0"></i>
+    <span><%= success %></span>
+  </div>
+  <% } %>
+
+  <!-- Status Tiket Aktif Anggota Jika Sudah Mengambil -->
+  <% if (myActiveQueue) { %>
+  <div class="bg-white rounded-3xl p-6 card-shadow border border-indigo-100 text-center space-y-4 relative overflow-hidden">
+    <div class="absolute top-0 right-0 left-0 h-2 <%= myActiveQueue.status === 'CALLING' ? 'bg-amber-500 animate-pulse' : 'bg-indigo-600' %>"></div>
+
+    <span class="inline-block px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider <%= myActiveQueue.status === 'CALLING' ? 'bg-amber-100 text-amber-800 animate-bounce' : 'bg-indigo-50 text-indigo-700' %>">
+      <i class="fas <%= myActiveQueue.status === 'CALLING' ? 'fa-bell mr-1' : 'fa-ticket-alt mr-1' %>"></i>
+      <%= myActiveQueue.status === 'CALLING' ? 'SEDANG DIPANGGIL KASIR!' : 'TIKET ANTREAN ANDA' %>
+    </span>
+
+    <div class="py-2">
+      <p class="text-xs text-slate-400 font-medium">Nomor Giliran Anda:</p>
+      <h1 class="text-5xl font-black text-slate-900 font-mono tracking-tight my-1 <%= myActiveQueue.status === 'CALLING' ? 'text-amber-600' : 'text-indigo-600' %>">
+        <%= myActiveQueue.queueNumber %>
+      </h1>
+      <span class="text-xs font-bold text-slate-600">
+        Layanan: <%= myActiveQueue.serviceType === 'SETOR' ? '📥 Setor Tunai' : (myActiveQueue.serviceType === 'TARIK' ? '📤 Tarik Tunai' : '💼 Layanan Umum') %>
+      </span>
+    </div>
+
+    <!-- Info Menunggu -->
+    <div class="grid grid-cols-2 gap-2 text-xs">
+      <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100">
+        <span class="text-[10px] text-slate-400 font-semibold uppercase block">Antrean di Depan</span>
+        <span class="text-lg font-black text-slate-800"><%= waitingBefore %> Orang</span>
+      </div>
+      <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100">
+        <span class="text-[10px] text-slate-400 font-semibold uppercase block">Loket Tujuan</span>
+        <span class="text-sm font-bold text-indigo-700 mt-1 block"><%= myActiveQueue.counterName || 'Loket Kasir' %></span>
+      </div>
+    </div>
+
+    <% if (myActiveQueue.status === 'CALLING') { %>
+    <div class="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold flex items-center justify-center space-x-2">
+      <i class="fas fa-bullhorn text-amber-600 text-sm animate-pulse"></i>
+      <span>Silakan langsung menuju ke <%= myActiveQueue.counterName || 'Loket Kasir' %> sekarang!</span>
+    </div>
+    <% } %>
+
+    <button
+      type="button"
+      onclick="window.print()"
+      class="no-print w-full py-3 bg-slate-900 hover:bg-slate-800 active:scale-98 text-white rounded-2xl text-xs font-bold flex items-center justify-center space-x-2 shadow-lg shadow-slate-900/10 transition-all"
+    >
+      <i class="fas fa-print"></i>
+      <span>Cetak Karcis Antrean</span>
+    </button>
+  </div>
+
+  <% } else { %>
+  <!-- Form Ambil Nomor Antrean Baru -->
+  <div class="bg-white rounded-3xl p-6 card-shadow border border-slate-100 space-y-4">
+    <div class="text-center pb-3 border-b border-slate-100">
+      <h3 class="text-base font-bold text-slate-800">Pilih Jenis Layanan Loket</h3>
+      <p class="text-xs text-slate-400 mt-0.5">Sentuh salah satu tombol di bawah untuk mengambil nomor tiket</p>
+    </div>
+
+    <form action="/anggota/antrean/ambil" method="post" class="space-y-3">
+      <!-- Opsi Setor Tunai (A) -->
+      <label class="relative flex items-center p-4 rounded-2xl border-2 border-slate-100 hover:border-emerald-500 cursor-pointer transition-all has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50/50">
+        <input type="radio" name="serviceType" value="SETOR" checked class="hidden peer" />
+        <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg font-black shrink-0 mr-3">
+          A
+        </div>
+        <div class="flex-1">
+          <h4 class="text-xs font-bold text-slate-800 peer-checked:text-emerald-900">Setor Tunai (Menabung)</h4>
+          <p class="text-[10px] text-slate-400">Penyetoran uang simpanan tunai ke rekening</p>
+        </div>
+        <div class="w-5 h-5 rounded-full border border-slate-300 peer-checked:border-emerald-600 peer-checked:bg-emerald-600 flex items-center justify-center text-white text-[10px]">
+          <i class="fas fa-check"></i>
+        </div>
+      </label>
+
+      <!-- Opsi Tarik Tunai (B) -->
+      <label class="relative flex items-center p-4 rounded-2xl border-2 border-slate-100 hover:border-amber-500 cursor-pointer transition-all has-[:checked]:border-amber-600 has-[:checked]:bg-amber-50/50">
+        <input type="radio" name="serviceType" value="TARIK" class="hidden peer" />
+        <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg font-black shrink-0 mr-3">
+          B
+        </div>
+        <div class="flex-1">
+          <h4 class="text-xs font-bold text-slate-800 peer-checked:text-amber-900">Tarik Tunai Saldo</h4>
+          <p class="text-[10px] text-slate-400">Pencairan uang tunai tabungan di loket kasir</p>
+        </div>
+        <div class="w-5 h-5 rounded-full border border-slate-300 peer-checked:border-amber-600 peer-checked:bg-amber-600 flex items-center justify-center text-white text-[10px]">
+          <i class="fas fa-check"></i>
+        </div>
+      </label>
+
+      <!-- Opsi Customer Service (C) -->
+      <label class="relative flex items-center p-4 rounded-2xl border-2 border-slate-100 hover:border-indigo-500 cursor-pointer transition-all has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50/50">
+        <input type="radio" name="serviceType" value="CS" class="hidden peer" />
+        <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-lg font-black shrink-0 mr-3">
+          C
+        </div>
+        <div class="flex-1">
+          <h4 class="text-xs font-bold text-slate-800 peer-checked:text-indigo-900">Layanan Umum / CS</h4>
+          <p class="text-[10px] text-slate-400">Informasi buku tabungan, akun, dan konsultasi</p>
+        </div>
+        <div class="w-5 h-5 rounded-full border border-slate-300 peer-checked:border-indigo-600 peer-checked:bg-indigo-600 flex items-center justify-center text-white text-[10px]">
+          <i class="fas fa-check"></i>
+        </div>
+      </label>
+
+      <button
+        type="submit"
+        class="w-full py-3.5 px-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-98 text-white text-xs font-extrabold shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center space-x-2 mt-4"
+      >
+        <i class="fas fa-ticket-alt"></i>
+        <span>Ambil Nomor Antrean Sekarang</span>
+      </button>
+    </form>
+  </div>
+  <% } %>
+
+  <!-- Status Ruang Tunggu Ringkas -->
+  <div class="p-4 rounded-3xl bg-slate-50 border border-slate-100 text-xs text-slate-600 space-y-2">
+    <div class="flex items-center justify-between">
+      <span class="font-bold text-slate-700 flex items-center">
+        <i class="fas fa-users text-indigo-600 mr-1.5"></i>
+        Kondisi Ruang Tunggu Loket
+      </span>
+      <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+        <%= totalWaiting %> Menunggu
+      </span>
+    </div>
+    <p class="text-[11px] text-slate-500">
+      Perhatikan layar monitor TV ruang tunggu atau dengarkan panggilan suara speaker saat nomor giliran Anda dipanggil.
+    </p>
+  </div>
+</div>
+
+<%- include("../layouts/footer") %>

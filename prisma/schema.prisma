@@ -1,0 +1,60 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                  Int           @id @default(autoincrement())
+  accountNumber       String?       @unique
+  name                String
+  email               String        @unique
+  phone               String?
+  passwordHash        String
+  role                String        @default("ANGGOTA")
+  savingsGoalTitle    String?
+  savingsGoalTarget   Int?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  transactions        Transaction[] @relation("MemberTransactions")
+  cashierTransactions Transaction[] @relation("CashierTransactions")
+  queues              Queue[]
+}
+
+model Transaction {
+  id          Int       @id @default(autoincrement())
+  type        String
+  status      String    @default("COMPLETED")
+  amount      Int
+  description String?
+  createdAt   DateTime  @default(now())
+  memberId    Int
+  cashierId   Int?
+
+  member  User  @relation("MemberTransactions", fields: [memberId], references: [id])
+  cashier User? @relation("CashierTransactions", fields: [cashierId], references: [id])
+}
+
+model Queue {
+  id          Int       @id @default(autoincrement())
+  queueNumber String
+  serviceType String    @default("SETOR") // "SETOR", "TARIK", "CS"
+  status      String    @default("WAITING") // "WAITING", "CALLING", "SERVING", "COMPLETED", "SKIPPED"
+  counterName String?   @default("Loket 1")
+  memberId    Int?
+  notes       String?
+  createdAt   DateTime  @default(now())
+  calledAt    DateTime?
+  completedAt DateTime?
+
+  member      User?     @relation(fields: [memberId], references: [id])
+}
+
+model Setting {
+  id    Int    @id @default(autoincrement())
+  key   String @unique
+  value String
+}

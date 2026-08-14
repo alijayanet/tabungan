@@ -1,0 +1,184 @@
+<%- include("../layouts/header", { title: "Laporan Kasir" }) %>
+
+<div class="space-y-6">
+  <!-- Top Banner -->
+  <div class="bg-white rounded-3xl p-6 card-shadow border border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+      <div class="flex items-center space-x-2 mb-1">
+        <span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 text-[10px] font-extrabold uppercase tracking-wider">
+          Loket Kasir
+        </span>
+      </div>
+      <h2 class="text-xl sm:text-2xl font-black text-slate-800">Laporan Transaksi Kasir</h2>
+      <p class="text-xs text-slate-400 mt-0.5">Rekapitulasi setoran dan penarikan yang telah diproses</p>
+    </div>
+
+    <div class="flex items-center space-x-2.5">
+      <!-- Print Button -->
+      <button
+        onclick="window.print()"
+        class="px-4 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 text-xs font-bold transition-all flex items-center space-x-2 border border-slate-200"
+      >
+        <i class="fas fa-print"></i>
+        <span>Cetak Laporan</span>
+      </button>
+
+      <!-- Export CSV Button -->
+      <%
+        const exportUrl = '/kasir/reports/export?' + new URLSearchParams(query).toString();
+      %>
+      <a
+        href="<%= exportUrl %>"
+        class="px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold shadow-md shadow-emerald-600/20 transition-all flex items-center space-x-2"
+      >
+        <i class="fas fa-file-excel"></i>
+        <span>Export CSV / Excel</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="bg-white rounded-3xl p-5 card-shadow border border-slate-100">
+      <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Total Setoran</span>
+      <h3 class="text-2xl font-black text-emerald-600 mt-1">
+        + Rp <%= totalDeposit.toLocaleString("id-ID") %>
+      </h3>
+    </div>
+
+    <div class="bg-white rounded-3xl p-5 card-shadow border border-slate-100">
+      <span class="text-[10px] font-bold text-rose-600 uppercase tracking-wider">Total Penarikan</span>
+      <h3 class="text-2xl font-black text-rose-600 mt-1">
+        - Rp <%= totalWithdraw.toLocaleString("id-ID") %>
+      </h3>
+    </div>
+
+    <div class="card-virtual rounded-3xl p-5 text-white card-shadow border border-slate-700/50">
+      <span class="text-[10px] font-bold text-slate-300 uppercase tracking-wider">Net Kas</span>
+      <h3 class="text-2xl font-black text-white mt-1">
+        Rp <%= netCash.toLocaleString("id-ID") %>
+      </h3>
+    </div>
+  </div>
+
+  <!-- Filter Form Card -->
+  <div class="bg-white rounded-3xl p-5 card-shadow border border-slate-100">
+    <form action="/kasir/reports" method="get" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+      <div>
+        <label class="block text-[11px] font-bold text-slate-700 mb-1">Dari Tanggal</label>
+        <input
+          type="date"
+          name="startDate"
+          value="<%= query.startDate %>"
+          class="modern-input w-full px-3 py-2 rounded-xl text-xs text-slate-800"
+        />
+      </div>
+
+      <div>
+        <label class="block text-[11px] font-bold text-slate-700 mb-1">Sampai Tanggal</label>
+        <input
+          type="date"
+          name="endDate"
+          value="<%= query.endDate %>"
+          class="modern-input w-full px-3 py-2 rounded-xl text-xs text-slate-800"
+        />
+      </div>
+
+      <div>
+        <label class="block text-[11px] font-bold text-slate-700 mb-1">Jenis Transaksi</label>
+        <select name="type" class="modern-input w-full px-3 py-2 rounded-xl text-xs text-slate-800">
+          <option value="">Semua Jenis</option>
+          <option value="DEPOSIT" <%= query.type === 'DEPOSIT' ? 'selected' : '' %>>Setoran (+)</option>
+          <option value="WITHDRAWAL" <%= query.type === 'WITHDRAWAL' ? 'selected' : '' %>>Penarikan (-)</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-[11px] font-bold text-slate-700 mb-1">Filter Anggota</label>
+        <select name="memberId" class="modern-input w-full px-3 py-2 rounded-xl text-xs text-slate-800">
+          <option value="">Semua Anggota</option>
+          <% members.forEach(m => { %>
+          <option value="<%= m.id %>" <%= query.memberId == m.id ? 'selected' : '' %>>
+            <%= m.name %>
+          </option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <button
+          type="submit"
+          class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-emerald-600/20"
+        >
+          <i class="fas fa-filter mr-1"></i> Terapkan
+        </button>
+        <a
+          href="/kasir/reports"
+          class="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition-all"
+          title="Reset Filter"
+        >
+          <i class="fas fa-undo"></i>
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Transactions Table -->
+  <div class="bg-white rounded-3xl p-6 card-shadow border border-slate-100 overflow-hidden">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-sm font-bold text-slate-800">Riwayat Mutasi Terfilter (<%= transactions.length %> Data)</h3>
+    </div>
+
+    <% if (transactions.length === 0) { %>
+    <div class="py-12 text-center">
+      <i class="fas fa-search text-slate-300 text-3xl mb-2"></i>
+      <p class="text-xs font-bold text-slate-700">Tidak ada transaksi ditemukan.</p>
+    </div>
+    <% } else { %>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs">
+        <thead>
+          <tr class="border-b border-slate-200 text-slate-400 font-bold uppercase text-[10px]">
+            <th class="pb-3 pr-4">No. Ref</th>
+            <th class="pb-3 pr-4">Tanggal & Waktu</th>
+            <th class="pb-3 pr-4">Anggota</th>
+            <th class="pb-3 pr-4">Jenis</th>
+            <th class="pb-3 pr-4">Nominal</th>
+            <th class="pb-3 pr-4">Kasir</th>
+            <th class="pb-3">Aksi</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <% transactions.forEach(t => { %>
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="py-3 pr-4 font-mono font-bold text-emerald-600">TRX-<%= String(t.id).padStart(6, '0') %></td>
+            <td class="py-3 pr-4 text-slate-500"><%= new Date(t.createdAt).toLocaleString("id-ID") %></td>
+            <td class="py-3 pr-4 font-bold text-slate-800"><%= t.member ? t.member.name : '-' %></td>
+            <td class="py-3 pr-4">
+              <span class="px-2 py-0.5 rounded-md font-bold text-[10px] <%= t.type === 'DEPOSIT' ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700' %>">
+                <%= t.type === "DEPOSIT" ? "Setoran" : "Penarikan" %>
+              </span>
+            </td>
+            <td class="py-3 pr-4 font-black <%= t.type === 'DEPOSIT' ? 'text-emerald-600' : 'text-rose-600' %>">
+              <%= t.type === 'DEPOSIT' ? '+' : '-' %> Rp <%= Math.abs(t.amount).toLocaleString("id-ID") %>
+            </td>
+            <td class="py-3 pr-4 text-slate-600"><%= t.cashier ? t.cashier.name : 'Kasir' %></td>
+            <td class="py-3">
+              <a
+                href="/kasir/receipt/<%= t.id %>"
+                title="Cetak Struk"
+                class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 inline-flex items-center justify-center text-xs transition-all"
+              >
+                <i class="fas fa-print"></i>
+              </a>
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <% } %>
+  </div>
+</div>
+
+<%- include("../layouts/footer") %>

@@ -1,0 +1,113 @@
+<%- include("../layouts/header", { title: "Masuk Anggota" }) %>
+
+<!-- Halaman Login Khusus Anggota Tabungan -->
+<div class="flex-1 flex items-center justify-center py-4">
+  <div class="w-full max-w-sm">
+    <!-- Brand Icon & Greeting -->
+    <div class="text-center mb-6">
+      <div class="w-16 h-16 bg-gradient-to-br from-indigo-600 to-blue-700 rounded-3xl flex items-center justify-center mx-auto mb-3 shadow-xl shadow-indigo-950/20 border border-indigo-400/20">
+        <i class="fas fa-wallet text-indigo-200 text-2xl"></i>
+      </div>
+      <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Dompet Tabungan Anggota</h2>
+      <p class="text-xs text-slate-500 mt-0.5">Masuk untuk melihat saldo dan riwayat transaksi</p>
+    </div>
+
+    <!-- Login Card -->
+    <div class="bg-white rounded-3xl p-6 card-shadow border border-slate-100">
+      <% if (typeof error !== "undefined" && error) { %>
+      <div class="mb-4 p-3.5 bg-rose-50 border border-rose-200 rounded-2xl flex items-start space-x-2.5 text-xs text-rose-700">
+        <i class="fas fa-exclamation-circle text-rose-500 text-sm shrink-0 mt-0.5"></i>
+        <span><%= error %></span>
+      </div>
+      <% } %>
+
+      <form action="/login" method="post" class="space-y-4">
+        <!-- Input Identifier (Email / No Rekening / No WA) -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1.5">Email / No. Rekening / No. WA</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+              <i class="fas fa-id-card text-xs"></i>
+            </span>
+            <input
+              type="text"
+              name="identifier"
+              required
+              placeholder="Contoh: 8820-2026-0001 atau email"
+              class="modern-input w-full pl-10 pr-4 py-3 rounded-2xl text-xs text-slate-800 focus:outline-none"
+            />
+          </div>
+          <p class="text-[10px] text-slate-400 mt-1">Gunakan email atau nomor rekening yang terdaftar di kasir</p>
+        </div>
+
+        <!-- Password Input -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1.5">Kata Sandi / PIN</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+              <i class="fas fa-lock text-xs"></i>
+            </span>
+            <input
+              type="password"
+              name="password"
+              required
+              placeholder="••••••••"
+              id="passwordInput"
+              class="modern-input w-full pl-10 pr-10 py-3 rounded-2xl text-xs text-slate-800 focus:outline-none"
+            />
+            <button type="button" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600" onclick="togglePassword()">
+              <i class="far fa-eye text-xs" id="toggleIcon"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          class="w-full py-3.5 px-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-98 text-white text-xs font-bold shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center space-x-2"
+        >
+          <i class="fas fa-arrow-right-to-bracket text-xs"></i>
+          <span>Buka Dompet Tabungan</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Kiosk Antrean & Staff Portal Redirect Link -->
+    <div class="mt-6 text-center space-y-3">
+      <a
+        href="/antrean"
+        class="inline-flex items-center justify-center space-x-2 w-full py-3 bg-white hover:bg-slate-50 text-indigo-700 font-bold text-xs rounded-2xl border border-indigo-100 shadow-sm transition-all"
+      >
+        <i class="fas fa-ticket-alt text-indigo-600"></i>
+        <span>Ambil Antrean Loket (Kios Mandiri) &rarr;</span>
+      </a>
+
+      <div class="inline-block p-3 bg-slate-100/80 rounded-2xl border border-slate-200/60 w-full">
+        <p class="text-[11px] text-slate-500 font-medium">
+          Anda Petugas Kasir / Admin?
+        </p>
+        <a href="/portal" class="inline-flex items-center space-x-1.5 text-xs font-bold text-slate-800 hover:text-indigo-600 mt-1 transition-colors">
+          <i class="fas fa-user-shield text-slate-500"></i>
+          <span>Masuk ke Portal Petugas &rarr;</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function togglePassword() {
+    const passwordInput = document.getElementById('passwordInput');
+    const toggleIcon = document.getElementById('toggleIcon');
+    
+    if (passwordInput.type === 'password') {
+      passwordInput.type = 'text';
+      toggleIcon.className = "far fa-eye-slash text-xs";
+    } else {
+      passwordInput.type = 'password';
+      toggleIcon.className = "far fa-eye text-xs";
+    }
+  }
+</script>
+
+<%- include("../layouts/footer") %>

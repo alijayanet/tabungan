@@ -1,0 +1,158 @@
+<%- include("../layouts/header", { title: "Koneksi WhatsApp" }) %>
+
+<div class="space-y-6">
+  <!-- Top 2-Column: Connection Status & Sesi -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- QR / Connection Status Card -->
+    <div class="bg-white rounded-3xl p-6 card-shadow border border-slate-100 flex flex-col justify-between">
+      <div>
+        <div class="flex items-center space-x-3 mb-4">
+          <div class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-lg border border-emerald-100">
+            <i class="fab fa-whatsapp"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-800">Status Bot WhatsApp</h3>
+            <p class="text-[11px] text-slate-400">Pengiriman notifikasi bukti transaksi otomatis</p>
+          </div>
+        </div>
+
+        <% if (status.status === "open") { %>
+        <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs space-y-1">
+          <div class="flex items-center space-x-2 font-bold text-sm">
+            <i class="fas fa-check-circle text-emerald-600"></i>
+            <span>WhatsApp Terhubung & Siap</span>
+          </div>
+          <p class="text-[11px] text-emerald-700 mt-1">
+            Sistem otomatis mengirimkan pesan konfirmasi setiap ada transaksi, dan menerima perintah setor/tarik via chat dari nomor Admin/Kasir.
+          </p>
+        </div>
+        <% } else if (status.status === "qr") { %>
+        <div class="p-4 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-900 text-xs mb-4">
+          <p class="font-bold">Scan QR Code Berikut:</p>
+          <p class="text-[11px] text-slate-600 mt-0.5">Buka WhatsApp di HP &rarr; Menu Titik Tiga / Pengaturan &rarr; <b>Perangkat Tertaut</b> &rarr; Tautkan Perangkat.</p>
+        </div>
+
+        <div class="flex justify-center my-3">
+          <canvas id="wa-qr" class="border-4 border-slate-100 rounded-3xl p-2 shadow-inner bg-white"></canvas>
+        </div>
+        <% } else { %>
+        <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 text-xs">
+          <p class="font-bold">WhatsApp Belum Terhubung</p>
+          <p class="text-[11px] mt-0.5">Silakan tekan tombol <b>Reset Sesi WhatsApp</b> di samping untuk memunculkan QR Code baru.</p>
+        </div>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Management Card -->
+    <div class="bg-white rounded-3xl p-6 card-shadow border border-slate-100 flex flex-col justify-between">
+      <div>
+        <div class="flex items-center space-x-3 mb-4">
+          <div class="w-10 h-10 rounded-2xl bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-lg border border-slate-200">
+            <i class="fas fa-sync-alt"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-800">Manajemen Sesi Bot</h3>
+            <p class="text-[11px] text-slate-400">Atur ulang sesi jika koneksi terputus atau ingin ganti nomor bot</p>
+          </div>
+        </div>
+
+        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-xs text-slate-600 space-y-2">
+          <p>
+            Nomor WhatsApp yang ditautkan di sini akan menjadi <b>Nomor Bot Resmi</b> yang bertugas mengirimkan bukti setoran/penarikan ke seluruh anggota.
+          </p>
+          <p class="text-[11px] text-slate-400">
+            Admin dan Kasir juga dapat mengirimkan pesan perintah setor/tarik ke nomor bot ini.
+          </p>
+        </div>
+      </div>
+
+      <form action="/admin/whatsapp/reset" method="post" onsubmit="return confirm('Yakin ingin mereset sesi WhatsApp?');" class="mt-6">
+        <button
+          type="submit"
+          class="w-full py-3.5 px-4 rounded-2xl border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 active:scale-98 text-xs font-bold transition-all flex items-center justify-center space-x-2"
+        >
+          <i class="fas fa-power-off"></i>
+          <span>Reset Sesi WhatsApp</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Panduan Perintah Transaksi Via Chat WhatsApp -->
+  <div class="bg-white rounded-3xl p-6 card-shadow border border-slate-100">
+    <div class="flex items-center space-x-3 mb-4">
+      <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-lg border border-indigo-100">
+        <i class="fas fa-robot"></i>
+      </div>
+      <div>
+        <h3 class="text-sm font-bold text-slate-800">Fitur Transaksi & Perintah via Chat WhatsApp</h3>
+        <p class="text-[11px] text-slate-400">Nomor WhatsApp Admin & Kasir yang terdaftar dapat mengirim perintah berikut ke nomor Bot</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+      <!-- Command 1: SETOR -->
+      <div class="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 space-y-1.5">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-black text-emerald-900 font-mono">SETOR</span>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">Input Uang</span>
+        </div>
+        <p class="text-[11px] text-emerald-800 font-mono font-semibold">SETOR &lt;NoRek/NoHP&gt; &lt;Nominal&gt;</p>
+        <p class="text-[10px] text-slate-600">Contoh: <code class="text-emerald-900 bg-white px-1 rounded">SETOR 8820-2026-0001 100000</code></p>
+      </div>
+
+      <!-- Command 2: TARIK -->
+      <div class="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/80 space-y-1.5">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-black text-amber-900 font-mono">TARIK</span>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold">Tarik Uang</span>
+        </div>
+        <p class="text-[11px] text-amber-800 font-mono font-semibold">TARIK &lt;NoRek/NoHP&gt; &lt;Nominal&gt;</p>
+        <p class="text-[10px] text-slate-600">Contoh: <code class="text-amber-900 bg-white px-1 rounded">TARIK 8820-2026-0001 50000</code></p>
+      </div>
+
+      <!-- Command 3: SALDO -->
+      <div class="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-200/80 space-y-1.5">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-black text-indigo-900 font-mono">SALDO</span>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 font-bold">Cek Akun</span>
+        </div>
+        <p class="text-[11px] text-indigo-800 font-mono font-semibold">SALDO &lt;NoRek/NoHP&gt;</p>
+        <p class="text-[10px] text-slate-600">Contoh: <code class="text-indigo-900 bg-white px-1 rounded">SALDO 8820-2026-0001</code></p>
+      </div>
+
+      <!-- Command 4: REKAP / MENU -->
+      <div class="p-4 rounded-2xl bg-slate-100 border border-slate-200 space-y-1.5">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-black text-slate-900 font-mono">REKAP / MENU</span>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 font-bold">Bantuan</span>
+        </div>
+        <p class="text-[11px] text-slate-800 font-mono font-semibold">Ketik: REKAP atau MENU</p>
+        <p class="text-[10px] text-slate-600">Melihat daftar perintah dan ringkasan kas seluruh anggota.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+<script>
+  (function () {
+    var status = "<%= status.status %>";
+    var qrValue = "<%= status.qr ? status.qr.replace(/"/g, '\\"') : "" %>";
+
+    if (status === "qr" && qrValue) {
+      var canvas = document.getElementById("wa-qr");
+      if (canvas && window.QRious) {
+        new QRious({
+          element: canvas,
+          value: qrValue,
+          size: 200,
+          level: "H"
+        });
+      }
+    }
+  })();
+</script>
+
+<%- include("../layouts/footer") %>
